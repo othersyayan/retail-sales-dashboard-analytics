@@ -4,3 +4,5 @@ dist
 .turbo
 .eslintcache
 .DS_Store
+.env
+.env.local
