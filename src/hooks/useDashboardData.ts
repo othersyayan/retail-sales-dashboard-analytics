@@ -70,63 +70,75 @@ export function useDashboardData() {
   }, []);
 
   // 3. Fetch Summary (filtered)
-  const fetchSummary = useCallback(async () => {
-    try {
-      setIsSummaryLoading(true);
-      const summaryParams = {
-        search: debouncedSearch,
-        category: filters.category,
-        gender: filters.gender,
-        dateFrom: filters.dateFrom,
-        dateTo: filters.dateTo,
-      };
+  const fetchSummary = useCallback((signal?: AbortSignal) => {
+    setIsSummaryLoading(true);
+    const summaryParams = {
+      search: debouncedSearch,
+      category: filters.category,
+      gender: filters.gender,
+      dateFrom: filters.dateFrom,
+      dateTo: filters.dateTo,
+    };
 
-      const queryString = buildQueryString(summaryParams);
-      const res = await fetch(`/api/summary${queryString}`);
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.error || 'Failed to fetch summary');
-      }
-      const data = (await res.json()) as SummaryResponse;
-      setSummary(data);
-    } catch (err) {
-      console.error('Summary fetch error:', err);
-    } finally {
-      setIsSummaryLoading(false);
-    }
+    const queryString = buildQueryString(summaryParams);
+    return fetch(`/api/summary${queryString}`, { signal })
+      .then(async (res) => {
+        if (!res.ok) {
+          const errJson = await res.json().catch(() => ({}));
+          throw new Error(errJson.error || 'Failed to fetch summary');
+        }
+        return res.json() as Promise<SummaryResponse>;
+      })
+      .then((data) => {
+        setSummary(data);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          console.error('Summary fetch error:', err);
+        }
+      })
+      .finally(() => {
+        setIsSummaryLoading(false);
+      });
   }, [debouncedSearch, filters.category, filters.gender, filters.dateFrom, filters.dateTo]);
 
   // 4. Fetch Sales List (filtered & paginated)
-  const fetchSales = useCallback(async () => {
-    try {
-      setIsSalesLoading(true);
-      setError(null);
+  const fetchSales = useCallback((signal?: AbortSignal) => {
+    setIsSalesLoading(true);
+    setError(null);
 
-      const salesParams = {
-        page: filters.page,
-        limit: filters.limit,
-        search: debouncedSearch,
-        category: filters.category,
-        gender: filters.gender,
-        dateFrom: filters.dateFrom,
-        dateTo: filters.dateTo,
-        sortBy: filters.sortBy,
-        sortOrder: filters.sortOrder,
-      };
+    const salesParams = {
+      page: filters.page,
+      limit: filters.limit,
+      search: debouncedSearch,
+      category: filters.category,
+      gender: filters.gender,
+      dateFrom: filters.dateFrom,
+      dateTo: filters.dateTo,
+      sortBy: filters.sortBy,
+      sortOrder: filters.sortOrder,
+    };
 
-      const queryString = buildQueryString(salesParams);
-      const res = await fetch(`/api/sales${queryString}`);
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.error || 'Failed to fetch sales');
-      }
-      const data = (await res.json()) as SalesListResponse;
-      setSalesData(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setIsSalesLoading(false);
-    }
+    const queryString = buildQueryString(salesParams);
+    return fetch(`/api/sales${queryString}`, { signal })
+      .then(async (res) => {
+        if (!res.ok) {
+          const errJson = await res.json().catch(() => ({}));
+          throw new Error(errJson.error || 'Failed to fetch sales');
+        }
+        return res.json() as Promise<SalesListResponse>;
+      })
+      .then((data) => {
+        setSalesData(data);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          setError(err instanceof Error ? err.message : 'Unknown error');
+        }
+      })
+      .finally(() => {
+        setIsSalesLoading(false);
+      });
   }, [
     debouncedSearch,
     filters.page,
@@ -145,13 +157,22 @@ export function useDashboardData() {
     fetchInitialMetadata();
   }, [fetchHealth, fetchInitialMetadata]);
 
-  // Refetch summary and sales on filter or debounce changes
+  // Refetch summary with abort controller
   useEffect(() => {
-    fetchSummary();
+    const controller = new AbortController();
+    fetchSummary(controller.signal);
+    return () => {
+      controller.abort();
+    };
   }, [fetchSummary]);
 
+  // Refetch sales with abort controller
   useEffect(() => {
-    fetchSales();
+    const controller = new AbortController();
+    fetchSales(controller.signal);
+    return () => {
+      controller.abort();
+    };
   }, [fetchSales]);
 
   // Action handlers

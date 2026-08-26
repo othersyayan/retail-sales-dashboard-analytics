@@ -1,8 +1,5 @@
 import { ApiError } from './errors';
 
-const RETAIL_API_BASE_URL = process.env.RETAIL_API_BASE_URL || 'https://api-retail-sales.vercel.app';
-const RETAIL_API_KEY = process.env.RETAIL_API_KEY || '';
-
 interface FetchOptions extends RequestInit {
   requiresAuth?: boolean;
 }
@@ -17,15 +14,25 @@ export async function serverFetch<T>(
 ): Promise<T> {
   const { requiresAuth = true, headers = {}, ...rest } = options;
 
-  const url = `${RETAIL_API_BASE_URL.replace(/\/$/, '')}${endpoint}`;
+  const baseUrl = process.env.RETAIL_API_BASE_URL || 'https://public.hijrahfood.id';
+  const apiKey = process.env.RETAIL_API_KEY || '';
+
+  if (requiresAuth && !apiKey) {
+    throw new ApiError(
+      'Server configuration error: RETAIL_API_KEY is not configured in environment.',
+      500
+    );
+  }
+
+  const url = `${baseUrl.replace(/\/$/, '')}${endpoint}`;
 
   const requestHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(headers as Record<string, string>),
   };
 
-  if (requiresAuth && RETAIL_API_KEY) {
-    requestHeaders['X-API-Key'] = RETAIL_API_KEY;
+  if (requiresAuth && apiKey) {
+    requestHeaders['X-API-Key'] = apiKey;
   }
 
   try {

@@ -105,6 +105,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <input
             type="date"
             value={filters.dateFrom}
+            max={filters.dateTo || undefined}
             onChange={(e) => onFilterChange('dateFrom', e.target.value)}
             style={inputStyle}
           />
@@ -116,6 +117,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <input
             type="date"
             value={filters.dateTo}
+            min={filters.dateFrom || undefined}
             onChange={(e) => onFilterChange('dateTo', e.target.value)}
             style={inputStyle}
           />

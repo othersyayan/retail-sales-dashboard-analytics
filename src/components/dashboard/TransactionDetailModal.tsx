@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Sale } from '@/types/sales';
 import { Skeleton } from '@/components/common/Skeleton';
 import { formatCurrency, formatDate } from '@/lib/utils/formatters';
@@ -16,6 +16,20 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   error,
   onClose,
 }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (sale || isLoading || error) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [sale, isLoading, error, onClose]);
+
   if (!sale && !isLoading && !error) return null;
 
   return (

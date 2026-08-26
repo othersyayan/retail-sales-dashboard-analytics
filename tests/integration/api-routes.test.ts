@@ -6,13 +6,16 @@ import { NextRequest } from 'next/server';
 
 describe('API Route Handlers Integration Tests', () => {
   const originalFetch = global.fetch;
+  const originalApiKey = process.env.RETAIL_API_KEY;
 
   beforeEach(() => {
     vi.restoreAllMocks();
+    process.env.RETAIL_API_KEY = 'test_mock_api_key';
   });
 
   afterEach(() => {
     global.fetch = originalFetch;
+    process.env.RETAIL_API_KEY = originalApiKey;
   });
 
   it('GET /api/metadata proxies upstream metadata response', async () => {
