@@ -1,0 +1,1195 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Retail Sales Public API",
+    "description": "Read-only retail sales API for interview take-home tasks.\n\n[Open README](/readme)",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["health"],
+        "summary": "Health check",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Service status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "example": {
+                  "status": "ok",
+                  "version": "1.0.0",
+                  "datasetLoaded": true,
+                  "totalRecords": 1000
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metadata": {
+      "get": {
+        "tags": ["metadata"],
+        "summary": "Dataset metadata",
+        "operationId": "metadata_metadata_get",
+        "responses": {
+          "200": {
+            "description": "Dataset ranges and available values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetadataResponse"
+                },
+                "example": {
+                  "totalRecords": 1000,
+                  "availableSortFields": [
+                    "age",
+                    "date",
+                    "pricePerUnit",
+                    "quantity",
+                    "totalAmount",
+                    "transactionId"
+                  ],
+                  "availableGenders": ["Female", "Male"],
+                  "availableCategories": ["Beauty", "Clothing", "Electronics"],
+                  "dateRange": {
+                    "start": "2023-01-01",
+                    "end": "2024-01-01"
+                  },
+                  "ageRange": {
+                    "min": 18,
+                    "max": 64
+                  },
+                  "quantityRange": {
+                    "min": 1,
+                    "max": 4
+                  },
+                  "pricePerUnitRange": {
+                    "min": 25,
+                    "max": 500
+                  },
+                  "totalAmountRange": {
+                    "min": 25,
+                    "max": 2000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/sales": {
+      "get": {
+        "tags": ["sales"],
+        "summary": "List sales records",
+        "operationId": "list_sales_sales_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 50
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "gender",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(Male|Female)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Gender"
+            }
+          },
+          {
+            "name": "customerId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Customerid"
+            }
+          },
+          {
+            "name": "transactionId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Transactionid"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Datefrom"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dateto"
+            }
+          },
+          {
+            "name": "ageMin",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agemin"
+            }
+          },
+          {
+            "name": "ageMax",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Agemax"
+            }
+          },
+          {
+            "name": "quantityMin",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Quantitymin"
+            }
+          },
+          {
+            "name": "quantityMax",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Quantitymax"
+            }
+          },
+          {
+            "name": "pricePerUnitMin",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Priceperunitmin"
+            }
+          },
+          {
+            "name": "pricePerUnitMax",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Priceperunitmax"
+            }
+          },
+          {
+            "name": "totalAmountMin",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Totalamountmin"
+            }
+          },
+          {
+            "name": "totalAmountMax",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Totalamountmax"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "transactionId",
+              "title": "Sortby"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(asc|desc)$",
+              "default": "asc",
+              "title": "Sortorder"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated sales records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalesListResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "transactionId": 1,
+                      "date": "2023-11-24",
+                      "customerId": "CUST001",
+                      "gender": "Male",
+                      "age": 34,
+                      "productCategory": "Beauty",
+                      "quantity": 3,
+                      "pricePerUnit": 50,
+                      "totalAmount": 150
+                    },
+                    {
+                      "transactionId": 2,
+                      "date": "2023-02-27",
+                      "customerId": "CUST002",
+                      "gender": "Female",
+                      "age": 26,
+                      "productCategory": "Clothing",
+                      "quantity": 2,
+                      "pricePerUnit": 500,
+                      "totalAmount": 1000
+                    }
+                  ],
+                  "pagination": {
+                    "page": 1,
+                    "limit": 2,
+                    "totalItems": 1000,
+                    "totalPages": 500
+                  },
+                  "filters": {
+                    "sortBy": "transactionId",
+                    "sortOrder": "asc"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sales/{transaction_id}": {
+      "get": {
+        "tags": ["sales"],
+        "summary": "Get sale detail",
+        "operationId": "sale_detail_sales__transaction_id__get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Transaction Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Single sales record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sale"
+                },
+                "example": {
+                  "transactionId": 1,
+                  "date": "2023-11-24",
+                  "customerId": "CUST001",
+                  "gender": "Male",
+                  "age": 34,
+                  "productCategory": "Beauty",
+                  "quantity": 3,
+                  "pricePerUnit": 50,
+                  "totalAmount": 150
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": ["categories"],
+        "summary": "Available product categories",
+        "operationId": "categories_categories_get",
+        "responses": {
+          "200": {
+            "description": "Unique categories from the dataset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoriesResponse"
+                },
+                "example": {
+                  "data": ["Beauty", "Clothing", "Electronics"]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/summary": {
+      "get": {
+        "tags": ["summary"],
+        "summary": "Sales summary",
+        "operationId": "summary_summary_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 50
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "gender",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(Male|Female)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Gender"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Datefrom"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dateto"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "transactionId",
+              "title": "Sortby"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(asc|desc)$",
+              "default": "asc",
+              "title": "Sortorder"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aggregated summary for the current filter set",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryResponse"
+                },
+                "example": {
+                  "totalTransactions": 1000,
+                  "totalRevenue": 456000,
+                  "averageOrderValue": 456,
+                  "totalItemsSold": 2514
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CategoriesResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": ["data"],
+        "title": "CategoriesResponse"
+      },
+      "DateRange": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          }
+        },
+        "type": "object",
+        "required": ["start", "end"],
+        "title": "DateRange"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "datasetLoaded": {
+            "type": "boolean",
+            "title": "Datasetloaded"
+          },
+          "totalRecords": {
+            "type": "integer",
+            "title": "Totalrecords"
+          }
+        },
+        "type": "object",
+        "required": ["status", "version", "datasetLoaded", "totalRecords"],
+        "title": "HealthResponse"
+      },
+      "MetadataResponse": {
+        "properties": {
+          "totalRecords": {
+            "type": "integer",
+            "title": "Totalrecords"
+          },
+          "availableSortFields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Availablesortfields"
+          },
+          "availableGenders": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Availablegenders"
+          },
+          "availableCategories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Availablecategories"
+          },
+          "dateRange": {
+            "$ref": "#/components/schemas/DateRange"
+          },
+          "ageRange": {
+            "$ref": "#/components/schemas/NumericRange"
+          },
+          "quantityRange": {
+            "$ref": "#/components/schemas/NumericRange"
+          },
+          "pricePerUnitRange": {
+            "$ref": "#/components/schemas/NumericRange"
+          },
+          "totalAmountRange": {
+            "$ref": "#/components/schemas/NumericRange"
+          }
+        },
+        "type": "object",
+        "required": [
+          "totalRecords",
+          "availableSortFields",
+          "availableGenders",
+          "availableCategories",
+          "dateRange",
+          "ageRange",
+          "quantityRange",
+          "pricePerUnitRange",
+          "totalAmountRange"
+        ],
+        "title": "MetadataResponse"
+      },
+      "NumericRange": {
+        "properties": {
+          "min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Min"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Max"
+          }
+        },
+        "type": "object",
+        "required": ["min", "max"],
+        "title": "NumericRange"
+      },
+      "PaginationMeta": {
+        "properties": {
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "totalItems": {
+            "type": "integer",
+            "title": "Totalitems"
+          },
+          "totalPages": {
+            "type": "integer",
+            "title": "Totalpages"
+          }
+        },
+        "type": "object",
+        "required": ["page", "limit", "totalItems", "totalPages"],
+        "title": "PaginationMeta"
+      },
+      "Sale": {
+        "properties": {
+          "transactionId": {
+            "type": "integer",
+            "title": "Transactionid"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "customerId": {
+            "type": "string",
+            "title": "Customerid"
+          },
+          "gender": {
+            "type": "string",
+            "title": "Gender"
+          },
+          "age": {
+            "type": "integer",
+            "title": "Age"
+          },
+          "productCategory": {
+            "type": "string",
+            "title": "Productcategory"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "pricePerUnit": {
+            "type": "number",
+            "title": "Priceperunit"
+          },
+          "totalAmount": {
+            "type": "number",
+            "title": "Totalamount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "transactionId",
+          "date",
+          "customerId",
+          "gender",
+          "age",
+          "productCategory",
+          "quantity",
+          "pricePerUnit",
+          "totalAmount"
+        ],
+        "title": "Sale"
+      },
+      "SalesFilters": {
+        "properties": {
+          "search": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
+          },
+          "customerId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customerid"
+          },
+          "transactionId": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transactionid"
+          },
+          "dateFrom": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datefrom"
+          },
+          "dateTo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dateto"
+          },
+          "ageMin": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agemin"
+          },
+          "ageMax": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agemax"
+          },
+          "quantityMin": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantitymin"
+          },
+          "quantityMax": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantitymax"
+          },
+          "pricePerUnitMin": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priceperunitmin"
+          },
+          "pricePerUnitMax": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priceperunitmax"
+          },
+          "totalAmountMin": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalamountmin"
+          },
+          "totalAmountMax": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalamountmax"
+          },
+          "sortBy": {
+            "type": "string",
+            "title": "Sortby",
+            "default": "transactionId"
+          },
+          "sortOrder": {
+            "type": "string",
+            "title": "Sortorder",
+            "default": "asc"
+          }
+        },
+        "type": "object",
+        "title": "SalesFilters"
+      },
+      "SalesListResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Sale"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/SalesFilters"
+          }
+        },
+        "type": "object",
+        "required": ["data", "pagination", "filters"],
+        "title": "SalesListResponse"
+      },
+      "SummaryResponse": {
+        "properties": {
+          "totalTransactions": {
+            "type": "integer",
+            "title": "Totaltransactions"
+          },
+          "totalRevenue": {
+            "type": "number",
+            "title": "Totalrevenue"
+          },
+          "averageOrderValue": {
+            "type": "number",
+            "title": "Averageordervalue"
+          },
+          "totalItemsSold": {
+            "type": "integer",
+            "title": "Totalitemssold"
+          }
+        },
+        "type": "object",
+        "required": [
+          "totalTransactions",
+          "totalRevenue",
+          "averageOrderValue",
+          "totalItemsSold"
+        ],
+        "title": "SummaryResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "APIKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  }
+}
